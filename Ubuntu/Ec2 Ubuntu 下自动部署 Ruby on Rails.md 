@@ -1,0 +1,228 @@
+服务器端
+1. 安装 ror 环境
+2. 安装 nginx
+	$ sudo apt-get update && sudo ap-get install -y nginx
+3. 生成 ssh key
+	$ cd ~/.ssh/
+	$ ssh-keygen -t rsa -C "douchunrong@gmail.com"
+	$ ssh-add ~/.ssh/github_2d_rsa
+	
+	查看
+	
+	$ ssh-add -l
+ 注意： ssh-add 如果出现 :Could not open a connection to your authentication agent.
+ 执行 $ ssh-agent bash
+
+4. 登录 github 选择项目
+	setting --> deploy key
+ 拷贝上面生成的 github_2d_rsa.pub 的内容到这里保存
+
+5. 测试
+
+	$ ssh -T git@github.com
+6. 修改 nginx
+
+	$ sudo vim /etc/nginx/sites-available/default
+
+	添加 
+	upstream unicorn {
+  		server unix:/tmp/unicorn.sock fail_timeout=0;
+	}
+
+	server {
+		listen 80 default deferred;
+		root /home/ubuntu/www/MYAPP/current/public;
+		location ^~ /assets/ {
+		    gzip_static on;
+		    expires max;
+		    add_header Cache-Control public;
+		  }
+
+		location ~ ^/(robots.txt|sitemap.xml.gz)/ {
+		    root /home/deployer/apps/MYAPP/current/public;
+		  }
+		try_files $uri/index.html $uri @unicorn;
+
+		location @unicorn {
+	        proxy_redirect     off;
+	        proxy_set_header   Host $host;
+	        proxy_set_header   X-Forwarded-Host $host;
+	        proxy_set_header   X-Forwarded-Server $host;
+	        proxy_set_header   X-Real-IP        $remote_addr;
+	        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+	        proxy_buffering    on;
+
+	        proxy_pass http://blix_backend;
+	    }
+
+	    location ^~ /assets/ {
+		    gzip_static on;
+		    expires max;
+		    add_header Cache-Control public;
+		  }
+		 error_page 500 502 503 504 /500.html;
+		 client_max_body_size 4G;
+		 keepalive_timeout 10;
+	}
+
+
+程序内：
+1. Gemfile 下添加
+gem 'unicorn', '~> 5.1'
+
+# Use Capistrano for deployment
+group :development do
+  gem 'capistrano', '~> 3.4', '>= 3.4.1'
+  gem 'capistrano-bundler', '~> 1.1', '>= 1.1.4'
+  gem 'capistrano-rails', '~> 1.1', '>= 1.1.6'
+  gem 'capistrano-rvm', '~> 0.1.2'
+  gem 'capistrano-passenger', '~> 0.2.0'
+  gem 'capistrano3-unicorn', '~> 0.2.1'
+end
+
+2. 安装 GEM
+$ bundle install
+
+3. 安装 capistrano
+$ bundle exec cap install
+
+4.  配置 capistrano
+修改文件 Capfile
+
+require 'capistrano/setup'
+require 'capistrano/deploy'
+require 'capistrano/rvm'
+require 'capistrano/rails'
+require 'capistrano/bundler'
+require 'capistrano/rails/assets'
+require 'capistrano/rails/migrations'
+require 'capistrano3/unicorn'
+
+Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }
+
+修改文件 deploy.rb 
+lock '3.5.0'
+
+set :application, 'humbleadmin-web-2d'
+set :repo_url, 'git@github.com:HumbleAdmin/humbleadmin-web-2d.git'
+set :deploy_via,:remote_cache
+set :deploy_user,'ubuntu'
+set :use_sudo, false
+set :stage, %w(production staging)
+set :default_stage, "production"
+set :pty, true
+
+ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+
+set :scm, :git
+set :rails_env, "production"
+set :rvm_type, :system
+set :rvm_ruby_version, '2.2-head'
+set :rvm_custom_path, '/usr/local/rvm'
+set :enable_ssl, false
+set :passenger_restart_with_touch, false
+
+namespace :deploy do
+
+  after :restart, :clear_cache do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      invoke 'unicorn:reload'
+    end
+  end
+
+  after :finishing, 'deploy:cleanup'
+
+end
+
+5. 配置 Unicorn
+修改新建文件 config/unicorn/production.rb 并添加以下内容
+
+worker_processes 2
+timeout 30
+
+APP_PATH = File.expand_path("../../..", __FILE__)
+working_directory APP_PATH
+
+listen 8080, :tcp_nopush => true
+listen "/tmp/unicorn.sock", :backlog => 64
+
+stderr_path APP_PATH + "/log/unicorn.stderr.log"
+stdout_path APP_PATH + "/log/unicorn.stdout.log"
+
+pid APP_PATH + "/tmp/pids/unicorn.pid"
+
+新建脚本文件 config/unicorn_init.sh 并添加：
+#!/bin/sh
+set -e
+# Example init script, this can be used with nginx, too,
+# since nginx and unicorn accept the same signals
+
+# Feel free to change any of the following variables for your app:
+TIMEOUT=60
+APP_ROOT=/home/ubuntu/www/humbleadmin-web-2d/current
+APP_USER=ubuntu
+PID=$APP_ROOT/tmp/pids/unicorn.pid
+CMD="unicorn_rails -D -E production -c $APP_ROOT/config/production.rb"
+action="$1"
+set -u
+
+old_pid="$PID.oldbin"
+
+cd $APP_ROOT || exit 1
+
+sig () {
+        test -s "$PID" && kill -$1 `cat $PID`
+}
+
+oldsig () {
+        test -s $old_pid && kill -$1 `cat $old_pid`
+}
+
+case $action in
+start)
+        sig 0 && echo >&2 "Already running" && exit 0
+        su -c "$CMD" - $APP_USER
+        ;;
+stop)
+        sig QUIT && exit 0
+        echo >&2 "Not running"
+        ;;
+force-stop)
+        sig TERM && exit 0
+        echo >&2 "Not running"
+        ;;
+restart|reload)
+        sig HUP && echo reloaded OK && exit 0
+        echo >&2 "Couldn't reload, starting '$CMD' instead"
+        su -c "$CMD" - $APP_USER
+        ;;
+upgrade)
+        if sig USR2 && sleep 2 && sig 0 && oldsig QUIT
+        then
+                n=$TIMEOUT
+                while test -s $old_pid && test $n -ge 0
+                do
+                        printf '.' && sleep 1 && n=$(( $n - 1 ))
+                done
+                echo
+
+                if test $n -lt 0 && test -s $old_pid
+                then
+                        echo >&2 "$old_pid still exists after $TIMEOUT seconds"
+                        exit 1
+                fi
+                exit 0
+        fi
+        echo >&2 "Couldn't upgrade, starting '$CMD' instead"
+        su -c "$CMD" - $APP_USER
+        ;;
+reopen-logs)
+        sig USR1
+        ;;
+*)
+        echo >&2 "Usage: $0 <start|stop|restart|upgrade|force-stop|reopen-logs>"
+        exit 1
+        ;;
+esac
+
+注意：修改 APP_ROOT 为自己的项目路径

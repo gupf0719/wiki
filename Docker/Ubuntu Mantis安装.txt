@@ -1,0 +1,65 @@
+ubuntu mantis 安装
+1、apache服务器安装
+$ sudo apt-get install apache2
+
+2、php5安装 
+$ sudo apt-get install  php5
+
+3、apache和php5的关联 
+$ sudo apt-get install  libapache2-mod-php5
+
+4.配置apache
+$ /etc/apache2/httpd.conf
+
+  在/etc/apache2/httpd.conf中添加
+  AddType application/x-httpd-php .php
+  AddType application/x-httpd-php .html
+  LoadModule php5_module /usr/lib/apache2/modules/libphp5.so
+  
+$ vim /etc/apache2/apache2.conf
+在文件末尾添加
+IncludeOptional httpd.conf
+
+注意： 如果重启Apache服务器时提示 php5 module 已经加载，那么就删除最后一句。
+
+
+端口配置 /etc/apache2/port.conf
+
+5.配置php
+在/etc/php5/apache2/php.ini中添加
+extension=mysql.so
+extension=gd.so
+
+重启Apache sudo /ect/init.d/apache2 restart
+6.下载mantis
+ $ cd /var/www
+ $ wget http://jaist.dl.sourceforge.net/project/mantisbt/mantis-stable/1.2.17/mantisbt-1.2.17.zip
+ $ unzip mantisbt-1.2.17.zip
+ $ mv mantisbt-1.2.17.zip mantis
+ $ chmod 777 -R mantis
+
+7.建立数据库
+mysql> create database bugtracker;
+
+mysql> grant all privileges on bugtracker.* to root@localhost identified by 'ssh12114';
+
+mysql> flush privileges;
+
+mysql> \q
+
+8.配置mantis文件
+$ sudo cp /var/www/mantis/config_inc.php.sample /var/www/mantis/config_inc.php
+$ vim /var/www/html/mantis/config_inc.php
+添加  $g_default_language = 'chinese_simplified';  #语言选择
+修改    $g_hostname      = 'localhost'; #数据库连接地址
+	$g_db_username   = 'root'; #数据库名称
+	$g_db_password   = '123456'; #数据库密码
+
+
+9.安装mantis
+浏览器访问 http://IP地址/mantis/admin/install.php
+输入MySQL的用户名和密码，然后点击Install/Upgrade Database，就会自动建立Mantis所需要的数据库和所有数据表。
+访问http://IP地址/mantis/
+出现登录界面，（注意，mantis的默认用户名为administrator，默认密码为root。）
+
+

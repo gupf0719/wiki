@@ -1,0 +1,28 @@
+新建sql万能
+—- grant all privileges on *.* to "%"@"%" identified by "root"; ----有密码
+—- grant all privileges on *.* to "%"@"%" identified by "";  -----无密码
+grant all privileges on *.* to 'root'@'%' identified by 'ssh12114'; ———默认使用
+grant all privileges on *.* to root@‘%’ identified by "";  — root 无密码
+删除
+drop user "%"@"%";
+生效
+flush privileges;
+
+远程访问 my.conf设置
+#bind-address		= 127.0.0.1  ##注释掉
+在[mysqld]节点下新增或修改如下两行行
+skip-name-resolve #忽略主机名的方式访问
+lower_case_table_names=1 #忽略数据库表名大小写
+
+
+
+grant all privileges on *.* to root@‘%’ identified by "";
+
+
+新建
+insert into mysql.user(Host,User,Password) values("localhost","mantis",password("ssh12114"));
+授权
+grant all privileges on bugtracker.* to mantis@localhost identified by 'ssh12114';
+
+
+grant all privileges on *.* to root@‘219.143.133.27’;

@@ -1,0 +1,21 @@
+1. $ sudo su -
+
+2. $ cd /usr/localhost
+
+3. $ mkdir data_bak
+
+4. 拷贝mysql_databak.sh 到这个目录下
+
+5. vim /etc/crontab
+   在文件尾部加入：（前两条是自动清楚缓存，最后一条是执行自动备份脚本文件）
+   0 */3 * * * root sync
+   0 */3 * * * root echo "1" >/proc/sys/vm/drop_caches
+
+   30 23 * * * root /usr/local/mysql_data/databak.sh
+
+6. $ service cron stop #停止
+ 
+   $ service cron start #启动
+ 
+   $ /etc/init.d/cron restart #重启
+

@@ -1,0 +1,77 @@
+sip.config
+
+
+[siptrunk_out]
+type=peer
+host=（VOS的IP）
+nat=yes
+dtmf=2833
+
+
+[1001]
+type=friend
+secret=123456
+qualify=yes
+port=5060
+nat=yes
+host=dynamic
+dtmfmode=rfc2833
+dial=SIP/1001
+context=from-internal
+canreinvite=no
+disallow=all
+allow=g729
+allow=gsm
+allow=ulaw
+allow=alaw
+callerid=Agent1001 <1001>
+callgroup=
+pickupgroup=
+accountcode=
+
+（还有还有其他分机）
+
+---------------
+extensions.conf
+
+
+[globals]
+TRUNK=DAHDI/g1
+
+[incoming]
+
+exten => s,1,Answer()
+exten => s,2,Background(/var/lib/asterisk/sounds/en/vm-enter-num-to-call)
+
+exten => _1XXX,1,Dial(SIP/${EXTEN},20)
+exten => _1XXX,2,Playback(/var/lib/asterisk/sounds/en/vm-nobodyavail)
+exten => _1XXX,3,Hangup()
+
+exten => _cXXX,1,Dial(SIP/${EXTEN},20)
+exten => _cXXX,2,Playback(/var/lib/asterisk/sounds/en/vm-nobodyavail)
+exten => _cXXX,3,Hangup()
+
+exten => i,1,Playback(/var/lib/asterisk/sounds/en/pbx-invalid)
+exten => i,2,Goto(incoming,s,1)
+exten => t,1,Playback(/var/lib/asterisk/sounds/en/vm-goodbye)
+exten => t,2,Hangup()
+
+[from-internal]
+
+include => outdialing
+exten => _1XXX,1,Dial(SIP/${EXTEN})
+exten => _cXXX,1,Dial(SIP/${EXTEN})
+
+[outdialing]
+
+;out to VOS
+
+exten => _0.,1,Dial(SIP/$[EXTEN]@siptrunk_out)
+exten => _0.,n,Playback(/var/lib/asterisk/sounds/en/tt-allbusy)
+exten => _0.,n,Hangup()
+
+;out to PSTN
+
+exten => _9.,1,Dial(DAHDI/g1/${EXTEN:1},30)  
+exten => _9.,n,Playback(/var/lib/asterisk/sounds/en/tt-allbusy)
+exten => _9.,n,Hangup()

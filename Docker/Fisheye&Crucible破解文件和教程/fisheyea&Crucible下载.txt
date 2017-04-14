@@ -1,0 +1,47 @@
+1.下载fisheye
+http://downloads.atlassian.com/software/fisheye/downloads/fisheye-3.4.4.zip
+2.下砸crucible
+http://downloads.atlassian.com/software/crucible/downloads/crucible-3.4.4.zip
+
+以上两个都可以
+
+
+
+下面是需要注意的安装细节
+1.下载
+$ cd /usr/src
+$ wget http://downloads.atlassian.com/software/crucible/downloads/crucible-3.4.4.zip
+2.解压
+$ unzip cruc*.zip
+$ mv fecru-3.4.4/ /usr/local/webapp/fecru
+3.启动
+$ cd /usr/local/webapp/fecru/bin
+$ ./run.sh
+4. 打开浏览器
+http://ip:8060
+记录你的ServerID
+5.在Windows下使用破解文件,当然你也需要在Windows下下载一次
+下载完成后解压
+打开终端
+在终端中输入
+$ java -jar crucible_kengen.jar
+会打开像pdf文档中说的那样的窗口
+按照pdf文档提示 进行破解文件.
+6.按照说明破解完成以后,记录好生成的key,最重要的把刚刚的文件上传到服务器
+然后再次重启服务器
+选择输入key
+next 
+crucible 破解完成.
+7.下一步是破解fisheye
+还是在Windows下
+$ java -jar fisheye_kengen.jar
+破解完成后直接输入key 就可以了,这次不用再次上传....
+
+地址: http://ip:8060
+管理员登陆地址 http://dev.sync4.mobi:8060/admin/login-default.do
+密码 ssh12114
+
+
+公共注册关闭
+管理员用户登陆 然后找到 Authentication
+然后找到 public signup  turn off 就可以了

@@ -1,0 +1,30 @@
+Ubunru install Docker
+
+1. 查看Ubuntu版本（14.04 LTS）
+	$ uname -r
+版本不得低于 3.10
+
+2. 更新资源
+	$ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+3. 创建或者打开文件 /etc/apt/sources.list.d/docker.list
+	$ vim /etc/apt/sources.list.d/docker.list
+	删除原有内容，并添加（选择正确的版本）
+	-- Ubuntu 12.04 LTS
+	deb https://apt.dockerproject.org/repo ubuntu-precise main
+
+	-- Ubuntu 14.04 LTS
+	deb https://apt.dockerproject.org/repo ubuntu-trusty main
+
+	-- Ubuntu 15.04 LTS
+	deb https://apt.dockerproject.org/repo ubuntu-vivid main
+
+	-- Ubuntu 15.10 LTS
+	deb https://apt.dockerproject.org/repo ubuntu-wily main
+ 添加后 保存退出。
+ 4. 更新
+ 	$ sudo apt-get update
+ 5. 卸载老版本
+ 	$ sudo apt-get purge lxc-docker
+
+ 6. 安装
+ 	$ sudo apt-get -y install docker.io

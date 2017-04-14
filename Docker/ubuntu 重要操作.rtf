@@ -1,0 +1,53 @@
+{\rtf1\ansi\ansicpg936\cocoartf1265
+\cocoascreenfonts1{\fonttbl\f0\fnil\fcharset0 MicrosoftYaHei;\f1\fswiss\fcharset0 ArialMT;\f2\fnil\fcharset134 STHeitiSC-Light;
+}
+{\colortbl;\red255\green255\blue255;\red254\green147\blue106;\red0\green145\blue206;\red254\green223\blue152;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs28 \cf0 \cb2 \uc0\u28155 \u21152 ssh \u29992 \u25143 \
+\cb3 vim /etc/sudoer   \uc0\u28155 \u21152 sudo \u26435 \u38480 \
+\
+ubuntu \uc0\u21024 \u38500 \u29992 \u25143  userdel  \u29992 \u25143 \u21517 (/home\u19979 \u30340 \u29992 \u25143 \u21517 \u31216 ) \
+useradd (\uc0\u28155 \u21152 \u29992 \u25143 )\
+\
+\uc0\u21019 \u24314 ssh\u20844 \u21273 \u27493 \u39588 \
+\
+cd /etc/ssh/\
+\
+vim  /etc/ssh/sshd_config (\uc0\u26356 \u25913 \u37197 \u32622 )\
+\
+cd /home/doucr/\
+\
+su - doucr\
+\
+ssh-keygen -t rsa\
+\
+cd .ssh/\
+\
+cat id_rsa.pub > authorized_keys\
+\
+ll (\uc0\u26597 \u30475 \u26435 \u38480 )\
+\
+\
+chmod 600 authorized_keys\
+\
+tar -zcvf public.tar.gz id_rsa id_rsa.pub \uc0\u25171 \u21253 \u23494 \u21273 \
+\
+sz public.tar.gz\
+\
+\
+\
+\cb4 \uc0\u26356 \u25913 \u23494 \u30721 \
+\cb3 \uc0\u32456 \u31471 \u36755 \u20837  \cf1 $\cf0  
+\f1 \cf1 \cb3 passwd usrname \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f2 \cf0 \'cc\'e1\'ca\'be\'ca\'e4\'c8\'eb\'d0\'c2\'c3\'dc\'c2\'eb
+\f1 :\
+
+\f2 \'d6\'d8\'c6\'f4\'d6\'d5\'b6\'cb
+\f0 \cb3 \
+\
+}

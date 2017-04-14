@@ -1,0 +1,11 @@
+ruby on rails mongodb 项目创建
+
+1. 确保安装 mogodb
+
+2. 创建项目
+	$rails new myapp --skip-active-record
+
+3. 安装ODBC连接驱动
+
+	$ gem 'mongoid', ~> "4.0.2"
+	

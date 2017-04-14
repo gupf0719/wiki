@@ -1,0 +1,241 @@
+
+1. 安装Ubuntu
+2. 修改apt源
+ sudo su -
+
+ vim /etc/apt/sources.list
+
+打开之后依次输入以下命令：
+:%s/us.archive/cn.archive/g
+:wq
+
+3. 升级现有包
+ apt-get -y update && apt-get -y upgrade
+
+4. 安装新的包
+ apt-get install -y build-essential wget libssl-dev libncurses5-dev libnewt-dev  libxml2-dev linux-headers-$(uname -r) libsqlite3-dev build-essential linux-headers-`uname -r` openssh-server mysql-server mysql-client bison flex php5 php5-curl php5-cli php5-mysql php-pear php-db php5-gd curl sox libncurses5-dev libssl-dev libmysqlclient15-dev mpg123 libxml2-dev libnewt-dev sqlite3 libsqlite3-dev pkg-config automake libtool autoconf git subversion uuid-dev libsrtp-dev ncurses-dev  libjansson-dev apache2
+
+
+
+5. 下载asterisk、dahdi、libpri，安装后两者
+
+cd /usr/src/
+wget http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-current.tar.gz
+wget http://downloads.asterisk.org/pub/telephony/libpri/libpri-1.4-current.tar.gz
+##wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-11-current.tar.gz
+#wget  http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-11.5.0.tar.gz
+wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-12-current.tar.gz
+
+tar zxvf dahdi-linux-complete*
+tar zxvf libpri*
+tar zxvf asterisk*
+cd /usr/src/dahdi-linux-complete*
+make && make install && make config
+cd /usr/src/libpri*
+make && make install
+
+6. 编译
+cd /usr/src/asterisk*
+contrib/scripts/get_mp3_source.sh
+./configure --with-crypto --with-ssl --with-srtp --prefix=$PREFIX && make menuselect && make && make install && make config && make samples
+
+**menuselect 时,一定选中formt系列要不然没办法播放声音文件
+
+注意res_rtp_asterisk,res_rtp_multicast,res_srtp是否可选，是否选中
+如果没有选中
+==安装 strp—1.4.4.tgz===
+wget http://superb-dca2.dl.sourceforge.net/project/srtp/srtp/1.4.4/srtp-1.4.4.tgz
+#wgethttp://sourceforge.net/projects/srtp/files/srtp/1.4.2/srtp-1.4.2.tgz/download
+tar xfzv srtp-1.4.4.tgz
+cd srtp
+./configure --prefix=/usr
+修改Makefile
+将 CFLAGS  = -Wall -O4 -fexpensive-optimizations -funroll-loops 替换为 
+CFLAGS  = -fPIC -Wall -O4 -fexpensive-optimizations -funroll-loops
+(下面仅1.4.4)
+修改test/rtpw_test.sh
+第7行        RTPW=rtpw      RTPW=./rtpw
+第21行      killall rtpw 2&>/dev/null                             killall rtpw 2>/dev/null
+
+
+reboot
+
+7,增加sip用户   vim /etc/asterisk/sip.conf
+在sip.conf文件结尾按照需要，增加若干用户纪录
+
+[1000]
+deny=0.0.0.0/0.0.0.0
+username=1000
+secret=1000
+dtmfmode=rfc2833
+canreinvite=no
+context=from-internal
+host=dynamic
+trustrpid=yes
+sendrpid=no
+type=peer
+nat=force_rport,comedia
+port=5060
+qualify=yes
+qualifyfreq=60
+transport=udp,ws,wss
+encryption=no
+callgroup=
+pickupgroup=
+dial=SIP/1000
+mailbox=1000@device
+permit=0.0.0.0/0.0.0.0
+callerid=1000<1002>
+callcounter=yes
+faxdetect=no
+cc_monitor_policy=generic
+hasiax=no
+hassip=yes
+encryption=yes
+avpf=yes
+icesupport=yes
+videosupport=no
+directmedia=no
+
+
+在extensions.conf结尾增加对其的拨号规则
+[from-internal]
+exten => 1000,1,Dial(SIP/1000,20)
+exten => 1001,1,Dial(SIP/1001,20)
+
+在Asterisk CLI中，reload，用软件或设备验证能否拨叫成功。
+
+8. 增加DAHDI卡
+先执行/etc/init.d/dahdi start 启动DAHDI进程
+执行dahdi_genconf
+检查 vim /etc/dahdi/system.conf
+看到
+fxsks=1
+echocanceller=mg2,1
+fxsks=2
+echocanceller=mg2,2
+# channel 3, WCTDM/0/2, no module.
+# channel 4, WCTDM/0/3, no module.
+
+# Global data
+
+loadzone        = us
+defaultzone     = us
+其中，每个模块对应一个
+fxsks=n
+echocanceller=mg2,n
+
+检查 vim /etc/asterisk/dahdi-channels.conf
+看到
+; Span 1: WCTDM/0 "Wildcard AEX410" (MASTER)
+;;; line="1 WCTDM/0/0 FXSKS"
+signalling=fxs_ks
+callerid=asreceived
+group=0
+context=from-pstn
+channel => 1
+callerid=
+group=
+context=default
+
+;;; line="2 WCTDM/0/1 FXSKS"
+signalling=fxs_ks
+callerid=asreceived
+group=0
+context=from-pstn
+channel => 2
+callerid=
+group=
+context=default
+
+每个channel对应一组
+
+编辑 vim /etc/asterisk/chan_dahdi.conf
+在最后一句增加
+#include dahdi-channels.conf
+
+重启dashdi和asterisk
+/etc/init.d/dahdi restart
+/etc/init.d/asterisk restart
+
+回到Asterisk CLI，执行reload，再执行dahdi show status
+看到
+
+Description                              Alarms  IRQ    bpviol CRC    Fra Codi Options  LBO
+Wildcard AEX410                          OK      0      0      0      CAS Unk           0 db (CSU)/0-133 feet (DSX-1)
+
+说明AEX410这个设备被识别
+
+执行dahdi show channels
+看到
+   Chan Extension  Context         Language   MOH Interpret        Blocked    State      Description                     
+ pseudo            default                    default                         In Service                                
+      1            from-pstn                  default                         In Service                                
+      2            from-pstn                  default                         In Service  
+
+说明两个channel被识别
+
+9. 增加DAHDI拨号规则
+编辑/etc/asterisk/extensions.conf
+在最后增加
+exten => _9.,1,Dial(dahdi/g0/${EXTEN:1}) 
+回到Asterisk CLI，reload
+拨913911568314，会被转呼到13911568314
+
+10.音频解析(wav —> gsm)
+首先创建wav格式音频,然后上传到ubuntu系统下  运行命令
+//inputfile.wav  源文件名称
+//outputfile.gsm转换后文件名称
+ 
+sox inputfile.wav -r 8000 -c 1 outputfile.gsm
+
+asterisk 默认音频文件路径
+/var/lib/asterisk/sounds
+
+
+启动 asterisk 
+service asterisk start
+
+
+[from-internal]
+exten => _[[1,3,8,6].],1,Set(PHONE=${EXTEN})
+exten => _[[1,3,8,6].],n,Dial(SIP/${PHONE},15)
+exten => _[[1,3,8,6].],n,Goto(s-${DIALSTATUS},1)
+exten => _[[1,3,8,6].],n,Dial(SIP/ssh${PHONE},15)
+exten => _[[1,3,8,6].],n,Goto(ss-${DIALSTATUS},1)
+exten => _[[1,3,8,6].],n,MySql(connect connid ${DBCurrentHost} ${DBuser} ${DBpass} ${DBname})
+exten => _[[1,3,8,6].],n,GotoIf($["${connid}" = ""]?error,1)
+exten => _[[1,3,8,6].],n,MySql(query resultidr ${connid} select dahdi_status from users where loginname=${EXTEN})
+exten => _[[1,3,8,6].],n,MySql(Fetch foundrow ${resultidr} dahdi_status)
+exten => _[[1,3,8,6].],n,MySql(clear ${resultidr})
+exten => _[[1,3,8,6].],n,MySql(disconnect ${connid})
+exten => _[[1,3,8,6].],n,GoToIf($[${dahdi_status}==1]?13,14)
+exten => _[[1,3,8,6].],n,Dial(dahdi/g0/${PHONE},20)
+exten => _[[1,3,8,6].],n,HungUp
+
+exten => s-CHANUNAVAIL,1,Goto(${PHONE},4)
+exten => s-CHANUNAVAIL,n,HungUp
+
+exten => ss-CHANUNAVAIL,1,Goto(${PHONE},6)
+exten => ss-CHANUNAVAIL,n,HungUp
+
+
+exten => s-NOANSWER,1,Goto(${PHONE},4)
+exten => s-NOANSWER,n,HungUp
+
+exten => ss-NOANSWER,1,Goto(${PHONE},6)
+exten => ss-NOANSWER,n,HungUp
+
+exten => s-BUSY,1,Goto(${PHONE},4)
+exten => s-BUSY,n,HungUp
+
+exten => ss-BUSY,1,Goto(${PHONE},6)
+exten => ss-BUSY,n,HungUp
+
+exten => s-CONGESTION,1,Goto(${PHONE},4)
+exten => s-CONGESTION,n,HungUp
+
+exten => ss-CONGESTION,1,Goto(${PHONE},6)
+exten => ss-CONGESTION,n,HungUp
+
+

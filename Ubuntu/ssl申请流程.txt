@@ -1,0 +1,15 @@
+申请ssl证书流程
+1.申请
+免费申请网站
+startssl.com
+
+2.申请流程
+参考网站
+http://jingyan.baidu.com/article/ab69b270e934642ca7189fa6.html
+
+3.将startssl 申请下来的key 跟 crt 文件 复制到服务器
+
+4.Apache添加ssl
+参考网站
+https://www.digitalocean.com/community/tutorials/how-to-create-a-ssl-certificate-on-apache-for-ubuntu-12-04
+

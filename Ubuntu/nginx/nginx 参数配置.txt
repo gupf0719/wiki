@@ -1,0 +1,2 @@
+nginx 参数配置
+client_max_body_size 500m;

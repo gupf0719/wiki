@@ -1,0 +1,412 @@
+{\rtf1\ansi\ansicpg936\cocoartf1138\cocoasubrtf510
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset134 STHeitiSC-Light;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red164\green71\blue71;\red38\green38\blue38;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{none\}}{\leveltext\leveltemplateid1\'00;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{none\}}{\leveltext\leveltemplateid101\'00;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww25100\viewh13620\viewkind0
+\deftab720
+\pard\pardeftab720\sl780
+
+\f0\fs52 \cf0 \cb1 Nginx
+\f1 \'cf\'c2
+\f0 gzip
+\f1 \'c5\'e4\'d6\'c3\'d6\'b8\'c4\'cf
+\f0 \
+\pard\pardeftab720\sl320\sa480
+{\field{\*\fldinst{HYPERLINK "http://wiki.nginx.org/NginxChsHttpGzipModule"}}{\fldrslt 
+\fs24 \cf2 Nginx
+\f1 \'d7\'d4\'b4\'f8\'b5\'c4\'d3\'d0
+\f0 gzip
+\f1 \'c4\'a3\'bf\'e9}}
+\f1\fs24 \cf3 \'a3\'ac\'d5\'e2\'b8\'f6\'c4\'a3\'bf\'e9\'d6\'a7\'b3\'d6\'d4\'da\'cf\'df\'ca\'b5\'ca\'b1\'d1\'b9\'cb\'f5\'ca\'e4\'b3\'f6\'ca\'fd\'be\'dd\'c1\'f7\'a1\'a3\'be\'ad\'b9\'fd\'c1\'bc\'ba\'c3\'b5\'c4\'c5\'e4\'d6\'c3\'d3\'c5\'bb\'af\'a3\'ac\'bf\'c9\'d2\'d4\'b4\'f3\'b7\'f9\'b5\'c4\'cc\'e1\'c9\'fd\'cd\'f8\'d5\'be\'b5\'c4\'ca\'e4\'b3\'f6\'d0\'a7\'c2\'ca\'a1\'a3
+\f0 \
+__
+\f1 \'ca\'b9\'d3\'c3\'b7\'b6\'c0\'fd
+\f0 __\
+\pard\pardeftab720\sl320
+
+\f2 \cf3 gzip             on;\
+gzip_min_length  1000;\
+gzip_proxied     expired no-cache no-store private auth;\
+gzip_types       text/plain application/xml;\
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'c4\'da\'d6\'c3\'b1\'e4\'c1\'bf
+\f0  $gzip_ratio 
+\f1 \'bf\'c9\'d2\'d4\'bb\'f1\'c8\'a1\'b5\'bd
+\f0 gzip
+\f1 \'b5\'c4\'d1\'b9\'cb\'f5\'b1\'c8\'c2\'ca
+\f0 \
+\pard\pardeftab720\sl780
+
+\f1\fs52 \cf0 \'d6\'b8\'c1\'ee
+\f0 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sl320\sa160
+\ls1\ilvl0
+\fs24 \cf3 		[#gzip gzip]\
+		[#gzip_buffers gzip_buffers]\
+		[#gzip_comp_level gzip_comp_level]\
+		[#gzip_min_length gzip_min_length]\
+		[#gzip_http_version gzip_http_version]\
+		[#gzip_proxied gzip_proxied]\
+		[#gzip_types gzip_types]\
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip on|off
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip off
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location, if (x) location
+\i0 \
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'bf\'aa\'c6\'f4\'bb\'f2\'d5\'df\'b9\'d8\'b1\'d5
+\f0 gzip
+\f1 \'c4\'a3\'bf\'e9
+\f0 \
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_buffers\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_buffers number size
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_buffers 4 4k/8k
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \uc0\u8232 
+\f1 \'c9\'e8\'d6\'c3\'cf\'b5\'cd\'b3\'bb\'f1\'c8\'a1\'bc\'b8\'b8\'f6\'b5\'a5\'ce\'bb\'b5\'c4\'bb\'ba\'b4\'e6\'d3\'c3\'d3\'da\'b4\'e6\'b4\'a2
+\f0 gzip
+\f1 \'b5\'c4\'d1\'b9\'cb\'f5\'bd\'e1\'b9\'fb\'ca\'fd\'be\'dd\'c1\'f7\'a1\'a3
+\f0  
+\f1 \'c0\'fd\'c8\'e7
+\f0  4 4k 
+\f1 \'b4\'fa\'b1\'ed\'d2\'d4
+\f0 4k
+\f1 \'ce\'aa\'b5\'a5\'ce\'bb\'a3\'ac\'b0\'b4\'d5\'d5\'d4\'ad\'ca\'bc\'ca\'fd\'be\'dd\'b4\'f3\'d0\'a1\'d2\'d4
+\f0 4k
+\f1 \'ce\'aa\'b5\'a5\'ce\'bb\'b5\'c4
+\f0 4
+\f1 \'b1\'b6\'c9\'ea\'c7\'eb\'c4\'da\'b4\'e6\'a1\'a3
+\f0  4 8k 
+\f1 \'b4\'fa\'b1\'ed\'d2\'d4
+\f0 8k
+\f1 \'ce\'aa\'b5\'a5\'ce\'bb\'a3\'ac\'b0\'b4\'d5\'d5\'d4\'ad\'ca\'bc\'ca\'fd\'be\'dd\'b4\'f3\'d0\'a1\'d2\'d4
+\f0 8k
+\f1 \'ce\'aa\'b5\'a5\'ce\'bb\'b5\'c4
+\f0 4
+\f1 \'b1\'b6\'c9\'ea\'c7\'eb\'c4\'da\'b4\'e6\'a1\'a3
+\f0 \
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'c8\'e7\'b9\'fb\'c3\'bb\'d3\'d0\'c9\'e8\'d6\'c3\'a3\'ac\'c4\'ac\'c8\'cf\'d6\'b5\'ca\'c7\'c9\'ea\'c7\'eb\'b8\'fa\'d4\'ad\'ca\'bc\'ca\'fd\'be\'dd\'cf\'e0\'cd\'ac\'b4\'f3\'d0\'a1\'b5\'c4\'c4\'da\'b4\'e6\'bf\'d5\'bc\'e4\'c8\'a5\'b4\'e6\'b4\'a2
+\f0 gzip
+\f1 \'d1\'b9\'cb\'f5\'bd\'e1\'b9\'fb\'a1\'a3
+\f0 \
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_comp_level\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_comp_level 1..9
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_comp_level 1
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \
+gzip
+\f1 \'d1\'b9\'cb\'f5\'b1\'c8\'a3\'ac
+\f0 1 
+\f1 \'d1\'b9\'cb\'f5\'b1\'c8\'d7\'ee\'d0\'a1\'b4\'a6\'c0\'ed\'cb\'d9\'b6\'c8\'d7\'ee\'bf\'ec\'a3\'ac
+\f0 9 
+\f1 \'d1\'b9\'cb\'f5\'b1\'c8\'d7\'ee\'b4\'f3\'b5\'ab\'b4\'a6\'c0\'ed\'d7\'ee\'c2\'fd\'a3\'a8\'b4\'ab\'ca\'e4\'bf\'ec\'b5\'ab\'b1\'c8\'bd\'cf\'cf\'fb\'ba\'c4
+\f0 cpu
+\f1 \'a3\'a9\'a1\'a3
+\f0 \
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_min_length\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_min_length length
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_min_length 0
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \uc0\u8232 
+\f1 \'c9\'e8\'d6\'c3\'d4\'ca\'d0\'ed\'d1\'b9\'cb\'f5\'b5\'c4\'d2\'b3\'c3\'e6\'d7\'ee\'d0\'a1\'d7\'d6\'bd\'da\'ca\'fd\'a3\'ac\'d2\'b3\'c3\'e6\'d7\'d6\'bd\'da\'ca\'fd\'b4\'d3
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b5\'c4
+\f0 Content-Length
+\f1 \'d6\'d0\'bd\'f8\'d0\'d0\'bb\'f1\'c8\'a1\'a1\'a3
+\f0 \
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'c4\'ac\'c8\'cf\'d6\'b5\'ca\'c7
+\f0 0
+\f1 \'a3\'ac\'b2\'bb\'b9\'dc\'d2\'b3\'c3\'e6\'b6\'e0\'b4\'f3\'b6\'bc\'d1\'b9\'cb\'f5\'a1\'a3
+\f0 \
+
+\f1 \'bd\'a8\'d2\'e9\'c9\'e8\'d6\'c3\'b3\'c9\'b4\'f3\'d3\'da
+\f0 1k
+\f1 \'b5\'c4\'d7\'d6\'bd\'da\'ca\'fd\'a3\'ac\'d0\'a1\'d3\'da
+\f0 1k
+\f1 \'bf\'c9\'c4\'dc\'bb\'e1\'d4\'bd\'d1\'b9\'d4\'bd\'b4\'f3\'a1\'a3
+\f0  
+\f1 \'bc\'b4
+\f0 : gzip_min_length 1024\
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_http_version\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_http_version 1.0|1.1
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_http_version 1.1
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'ca\'b6\'b1\'f0
+\f0 http
+\f1 \'b5\'c4\'d0\'ad\'d2\'e9\'b0\'e6\'b1\'be\'a1\'a3\'d3\'c9\'d3\'da\'d4\'e7\'c6\'da\'b5\'c4\'d2\'bb\'d0\'a9\'e4\'af\'c0\'c0\'c6\'f7\'bb\'f2\'d5\'df
+\f0 http
+\f1 \'bf\'cd\'bb\'a7\'b6\'cb\'a3\'ac\'bf\'c9\'c4\'dc\'b2\'bb\'d6\'a7\'b3\'d6
+\f0 gzip
+\f1 \'d7\'d4\'bd\'e2\'d1\'b9\'a3\'ac\'d3\'c3\'bb\'a7\'be\'cd\'bb\'e1\'bf\'b4\'b5\'bd\'c2\'d2\'c2\'eb\'a3\'ac\'cb\'f9\'d2\'d4\'d7\'f6\'d2\'bb\'d0\'a9\'c5\'d0\'b6\'cf\'bb\'b9\'ca\'c7\'d3\'d0\'b1\'d8\'d2\'aa\'b5\'c4\'a1\'a3
+\f0  
+\f1 \'d7\'a2\'a3\'ba
+\f0 21
+\f1 \'ca\'c0\'bc\'cd\'b6\'bc\'c0\'b4\'c1\'cb\'a3\'ac\'cf\'d6\'d4\'da\'b3\'fd\'c1\'cb\'c0\'e0\'cb\'c6\'d3\'da\'b0\'d9\'b6\'c8\'b5\'c4\'d6\'a9\'d6\'eb\'d6\'ae\'c0\'e0\'b5\'c4\'b6\'ab\'ce\'f7\'b2\'bb\'d6\'a7\'b3\'d6\'d7\'d4\'bd\'e2\'d1\'b9\'a3\'ac
+\f0 99.99%
+\f1 \'b5\'c4\'e4\'af\'c0\'c0\'c6\'f7\'bb\'f9\'b1\'be\'c9\'cf\'b6\'bc\'d6\'a7\'b3\'d6
+\f0 gzip
+\f1 \'bd\'e2\'d1\'b9\'c1\'cb\'a3\'ac\'cb\'f9\'d2\'d4\'bf\'c9\'d2\'d4\'b2\'bb\'d3\'c3\'c9\'e8\'d5\'e2\'b8\'f6\'d6\'b5
+\f0 ,
+\f1 \'b1\'a3\'b3\'d6\'cf\'b5\'cd\'b3\'c4\'ac\'c8\'cf\'bc\'b4\'bf\'c9\'a1\'a3
+\f0 \
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_proxied\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_proxied [off|expired|no-cache|no-store|private|no_last_modified|no_etag|auth|any] \'85
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_proxied off
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \
+Nginx
+\f1 \'d7\'f7\'ce\'aa\'b7\'b4\'cf\'f2\'b4\'fa\'c0\'ed\'b5\'c4\'ca\'b1\'ba\'f2\'c6\'f4\'d3\'c3\'a3\'ac\'bf\'aa\'c6\'f4\'bb\'f2\'d5\'df\'b9\'d8\'b1\'d5\'ba\'f3\'b6\'cb\'b7\'fe\'ce\'f1\'c6\'f7\'b7\'b5\'bb\'d8\'b5\'c4\'bd\'e1\'b9\'fb\'a3\'ac\'c6\'a5\'c5\'e4\'b5\'c4\'c7\'b0\'cc\'e1\'ca\'c7\'ba\'f3\'b6\'cb\'b7\'fe\'ce\'f1\'c6\'f7\'b1\'d8\'d0\'eb\'d2\'aa\'b7\'b5\'bb\'d8\'b0\'fc\'ba\'ac
+\f0 \'94Via\'94
+\f1 \'b5\'c4
+\f0  header
+\f1 \'cd\'b7\'a1\'a3
+\f0 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sl320\sa160
+\ls2\ilvl0\cf3 		off \'96 
+\f1 \'b9\'d8\'b1\'d5\'cb\'f9\'d3\'d0\'b5\'c4\'b4\'fa\'c0\'ed\'bd\'e1\'b9\'fb\'ca\'fd\'be\'dd\'b5\'c4\'d1\'b9\'cb\'f5
+\f0 \
+		expired \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5\'a3\'ac\'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b0\'fc\'ba\'ac
+\f0  \'93Expires\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		no-cache \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5\'a3\'ac\'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b0\'fc\'ba\'ac
+\f0  \'93Cache-Control:no-cache\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		no-store \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5\'a3\'ac\'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b0\'fc\'ba\'ac
+\f0  \'93Cache-Control:no-store\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		private \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5\'a3\'ac\'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b0\'fc\'ba\'ac
+\f0  \'93Cache-Control:private\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		no_last_modified \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5
+\f0 ,
+\f1 \'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b2\'bb\'b0\'fc\'ba\'ac
+\f0  \'93Last-Modified\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		no_etag \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5
+\f0  ,
+\f1 \'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b2\'bb\'b0\'fc\'ba\'ac
+\f0  \'93ETag\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		auth \'96 
+\f1 \'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5
+\f0  , 
+\f1 \'c8\'e7\'b9\'fb
+\f0 header
+\f1 \'cd\'b7\'d6\'d0\'b0\'fc\'ba\'ac
+\f0  \'93Authorization\'94 
+\f1 \'cd\'b7\'d0\'c5\'cf\'a2
+\f0 \
+		any \'96 
+\f1 \'ce\'de\'cc\'f5\'bc\'fe\'c6\'f4\'d3\'c3\'d1\'b9\'cb\'f5
+\f0 \
+\pard\pardeftab720\sl780
+
+\fs52 \cf0 gzip_types\
+\pard\pardeftab720\sl320\sa480
+
+\f1\b\fs24 \cf3 \'d3\'ef\'b7\'a8
+\f0 :
+\b0  
+\i gzip_types mime-type [mime-type ...]
+\i0 \
+
+\f1\b \'c4\'ac\'c8\'cf\'d6\'b5
+\f0 :
+\b0  
+\i gzip_types text/html
+\i0 \
+
+\f1\b \'d7\'f7\'d3\'c3\'d3\'f2
+\f0 :
+\b0  
+\i http, server, location
+\i0 \
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'c6\'a5\'c5\'e4
+\f0 MIME
+\f1 \'c0\'e0\'d0\'cd\'bd\'f8\'d0\'d0\'d1\'b9\'cb\'f5\'a3\'ac\'a3\'a8\'ce\'de\'c2\'db\'ca\'c7\'b7\'f1\'d6\'b8\'b6\'a8\'a3\'a9
+\f0 \'94text/html\'94
+\f1 \'c0\'e0\'d0\'cd\'d7\'dc\'ca\'c7\'bb\'e1\'b1\'bb\'d1\'b9\'cb\'f5\'b5\'c4\'a1\'a3
+\f0 \uc0\u8232 
+\f1 \'d7\'a2\'d2\'e2\'a3\'ba\'c8\'e7\'b9\'fb\'d7\'f7\'ce\'aa
+\f0 http server
+\f1 \'c0\'b4\'ca\'b9\'d3\'c3\'a3\'ac\'d6\'f7\'c5\'e4\'d6\'c3\'ce\'c4\'bc\'fe\'d6\'d0\'d2\'aa\'b0\'fc\'ba\'ac\'ce\'c4\'bc\'fe\'c0\'e0\'d0\'cd\'c5\'e4\'d6\'c3\'ce\'c4\'bc\'fe
+\f0 \
+\pard\pardeftab720\sl320
+
+\f2 \cf3 http\
+\{\
+	include       conf/mime.types;\
+	......\
+\}\
+\pard\pardeftab720\sl320\sa480
+
+\f1 \cf3 \'c8\'e7\'b9\'fb\'c4\'e3\'cf\'a3\'cd\'fb\'d1\'b9\'cb\'f5\'b3\'a3\'b9\'e6\'b5\'c4\'ce\'c4\'bc\'fe\'c0\'e0\'d0\'cd\'a3\'ac\'bf\'c9\'d2\'d4\'d0\'b4\'b3\'c9\'d5\'e2\'b8\'f6\'d1\'f9\'d7\'d3
+\f0 \
+\pard\pardeftab720\sl320
+
+\f2 \cf3 http\
+\{\
+: include       conf/mime.types;\
+\
+: gzip on;\
+: gzip_min_length  1000;\
+: gzip_buffers     4 8k;\
+: gzip_http_version 1.1;\
+: gzip_types       text/plain application/x-javascript text/css text/html application/xml;\
+\
+: ......\
+\}\
+\
+
+\f1 \'d7\'ee\'d6\'d5\'c5\'e4\'d6\'c3\'bd\'e1\'b9\'fb
+\f2 \
+\
+gzip on;\
+gzip_min_length 1k;\
+gzip_buffers 4 16k;\
+#gzip_http_version 1.0;\
+gzip_comp_level 2;\
+gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;\
+gzip_vary off;\
+gzip_disable "MSIE [1-6]\\.";\
+}

@@ -1,0 +1,325 @@
+[SOLVED] MySQL integration with AsteriskNOW and FreePBX
+
+I've been running AsteriskNOW 1.7 using the FreePBX 2.8 interface and have been working on a project to integrate AsteriskNOW/FreePBX dialplan with MySQL via ODBC.  I found information distributed in different places, and felt it might help others to pull it all together in one place as a how-to for AsteriskNOW/FreePBX given the distribution is quite different from building Asterisk from scratch.  
+
+Lets get started...
+
+1.) Check the ODBC Linux driver configuration.  The AsteriskNOW/FreePBX distribution has the ODBC driver installation and config done.
+
+[root@myhost ~]# cat /etc/odbcinst.ini
+[PostgreSQL]
+Description		= ODBC for PostgreSQL
+Driver		= /usr/lib/libodbcpsql.so
+Setup		= /usr/lib/libodbcpsqlS.so@gmail.com
+FileUsage		= 1
+
+[MySQL]
+Description		= ODBC for MySQL
+Driver		= /usr/lib/libmyodbc3.so
+Setup		= /usr/lib/libodbcmyS.so
+UsageCount		= 1
+
+2.) Verify the system can see th drivers configured above using odbcinst.  If the paths to the .so files are working you should see the below output.
+
+[root@myhost ~]# odbcinst -q -d
+[PostgreSQL]
+[MySQL]
+
+
+3.) Configure the /etc/odbc.ini file, which is used to create an identifier that Asterisk will use to reference this configuration.  By default AsteriskNOW/FreePBX has setup a Data Source Name (DSN) for asterisk-cdr.  You need to create a new DSN for your new database.  Since the distribution comes with a database named 'test' we will use that fo the purpose of this how-to.  Once edited you should have a file that looks like the following.  Don't worry about Port and Socket as these are optional parameters.  Since we are using the default/local MySQL instance we can ignore. 
+
+[root@myhost ~]# cat /etc/odbc.ini
+[asterisk-cdr]
+Driver		= MySQL
+Description	= Asterisk CDR DSN
+Server		= localhost
+Port		= 
+Database	= asterisk-cdr
+Option		= 3
+Socket		= 
+
+[asterisk-test]
+Driver          = MySQL
+Description     = MySQL connection to 'test' database
+Server          = localhost
+Port            =
+Database        = test
+Option          = 3
+Socket          =
+
+
+4.) Before we can test the /etc/odbc.ini configuration we need to make sure our database is ready.  From the cmd prompt enter 'mysql'.    
+
+[root@myhost ~]# mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8681
+Server version: 5.0.77 Source distribution
+@gmail.com
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+5.) Take a look at the default databases already setup.  Notice the 'test' database.  
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema | 
+| asterisk           | 
+| asteriskcdrdb      | 
+| mysql              | 
+| test               | 
++--------------------+
+5 rows in set (0.00 sec)
+
+6.) Select the 'test' database and create a table and input some data.  I decided to keep it simple and create a table called 'accounts' with 2 fields 'account' and 'number'.  
+
+mysql> use test
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+mysql> create table accounts (account VARCHAR(30),number CHAR(10));
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| accounts       | 
++----------------+
+1 row in set (0.00 sec)
+
+mysql> describe accounts;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| account | varchar(30) | YES  |     | NULL    |       | 
+| number  | char(10)    | YES  |     | NULL    |       | 
++---------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> INSERT INTO accounts VALUES ('Customer', '5555555555');
+Query OK, 1 row affected, 1 warning (0.00 sec)
+
+mysql> select * from accounts;
++-----------+------------+
+| account   | number     |
++-----------+------------+
+| Customer  | 5555555555 | 
++-----------+------------+
+1 row in set (0.00 sec)
+
+7.) Now grant the user 'freepbx' permissions to query the 'test' database.  For this we have to change the database to 'mysql', check the default/current permissions and make our changes.
+ 
+mysql> use mysql
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+mysql> select * from db;
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+| Host      | Db            | User    | Select_priv | Insert_priv | Update_priv | Delete_priv | Create_priv | Drop_priv | Grant_priv | References_priv | Index_priv | Alter_priv | Create_tmp_table_priv | Lock_tables_priv | Create_view_priv | Show_view_priv | Create_routine_priv | Alter_routine_priv | Execute_priv |
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+| %         | test          |         | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | N                  | N            | 
+| %         | test\_%       |         | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | N                  | N            | 
+| localhost | asterisk      | freepbx | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | Y                  | Y            | 
+| localhost | asteriskcdrdb | freepbx | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | Y                  | Y            | 
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> grant SELECT ON test.* to'freepbx'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from db;
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+| Host      | Db            | User    | Se@gmail.comlect_priv | Insert_priv | Update_priv | Delete_priv | Create_priv | Drop_priv | Grant_priv | References_priv | Index_priv | Alter_priv | Create_tmp_table_priv | Lock_tables_priv | Create_view_priv | Show_view_priv | Create_routine_priv | Alter_routine_priv | Execute_priv |
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+| %         | test          |         | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | N                  | N            | 
+| %         | test\_%       |         | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | N                  | N            | 
+| localhost | asterisk      | freepbx | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | Y                  | Y            | 
+| localhost | asteriskcdrdb | freepbx | Y           | Y           | Y           | Y           | Y           | Y         | N          | Y               | Y          | Y          | Y                     | Y                | Y                | Y              | Y                   | Y                  | Y            | 
+| localhost | test          | freepbx | Y           | N           | N           | N           | N           | N         | N          | N               | N          | N          | N                     | N                | N                | N              | N                   | N                  | N            | 
++-----------+---------------+---------+-------------+-------------+-------------+-------------+-------------+-----------+------------+-----------------+------------+------------+-----------------------+------------------+------------------+----------------+---------------------+--------------------+--------------+
+5 rows in set (0.00 sec)
+
+8.) Verify that you can connect to your database using the isql application. echo the select 1 statement and pipe it into isql, which will then connect using the asterisk-test section you added to /etc/odbc.ini.  This validates that everything from a Linux/ODBC perspective is working correctly.  Now we have to get AsteriskNOW/FreePBX ready to use the connection.
+
+[root@myhost ~]# echo "select 1" | isql -v asterisk-test
++---------------------------------------+
+| Connected!                            |
+|                                       |
+| sql-statement                         |
+| help [tablename]                      |
+| quit                                  |
+|                                       |
++---------------------------------------+
+SQL> +---------------------+
+| 1                   |
++---------------------+
+| 1                   |
++---------------------+
+SQLRowCount returns 1
+1 rows fetched
+SQL> [root@myhost ~]#
+
+9.) AsteriskNOW does not include the asterisk16-addons-mysql.i386 or asterisk16-odbc.i386 packages by default due to licensing issues.  Log into the cmd line and perform the following commands to install the missing packages.  These will add the required asterisk modules into /usr/lib/asterisk/modules.  Prior to this step, modules like func_odbc.so are not available.  
+
+Check what asterisk packages are installed and available.  
+[root@myhost ~]# yum list asterisk*
+
+If you don't  see asterisk16-addons-mysql.i386 and asterisk16-odbc.i386 listed in the Installed Packages section then update yum...
+[root@myhost ~]# yum update
+
+And install the mysql addon package
+[root@myhost ~]# yum -y install asterisk16-addons-mysql.i386
+[root@myhost ~]# yum -y install asterisk16-odbc.i386
+
+Restart asterisk
+[root@myhost ~]# amportal restart
+
+
+10.) Asterisk ODBC connections are configured in the res_odbc.conf file located in /etc/asterisk. The res_odbc.conf file sets the parameters that various Asterisk modules will use to connect to the database.  This file does not exist as part of the default AsteriskNOW/FreePBX distribution.  Create the file, using the below as an example.  Make sure the DSN matches the identifier specified in the /etc/odbc.ini file.  The pre-connect option tells Asterisk to open up and maintain a connection to the database when loading the res_odbc.so module, lowering overhead.  
+
+[root@myhost ~]# cat res_odbc.conf 
+[asterisk-test]
+enabled => yes
+dsn => asterisk-test
+username => freepbx
+password => fpbx
+pooling => no
+limit => 5
+pre-connect => yes
+
+* Make sure the permissions are setup for asterisk if you created the file as root.
+
+[root@myhost ~]# ls -l res_odbc.conf 
+-rw-r--r-- 1 root     root       128 Oct  4 09:34 res_odbc.conf
+
+[root@myhost ~]# ls -l res_odbc.conf  chown asterisk res_odbc.conf 
+[root@myhost ~]# ls -l res_odbc.conf  chgrp asterisk res_odbc.conf 
+[root@myhost ~]# ls -l res_odbc.conf  chmod g+w res_odbc.conf 
+
+[root@myhost ~]# ls -l res_odbc.conf 
+-rw-rw-r-- 1 asterisk asterisk   128 Oct  4 09:34 res_odbc.conf
+
+
+11.) After making the res_odbc.conf config change restart asterisk and verify the database connection is working.  You should see the below output.
+
+from Linux CLI
+[root@myhost ~]# asterisk -rx "module reload"
+
+Log into the asterisk console
+[root@myhost ~]# asterisk -r
+
+Verify the connection is working
+myhost*CLI> odbc show
+
+ODBC DSN Settings
+-----------------
+
+  Name:   asterisk
+  DSN:    asterisk-test
+  Pooled: No
+  Connected: Yes
+
+
+We have setup the MySQL database, ODBC, and tested connectivity from Asterisk.  It all seems so easy... but we are just getting started.  Take a break, get some coffee, we got more to do... Now we need to configure FreePBX to use func_odbc.conf and custom dialplan code to use this connection which is no walk in the park.  
+
+
+12.) We need to create the /etc/asterisk/func_odbc.conf file and define the function name and SQL query.  The dsn needs to match what is defined /etc/asterisk/res_odbc.conf.  In this example the query reads the 'number' field from the 'accounts' table in the 'test' database looking for a match to ${ARG1} which represents digits collected by the custom dialplan.  I've also put an example here showing how to match a specific value.
+
+[root@myhost ~]# cat func_odbc.conf 
+[accountNumber]
+dsn=asterisk-test
+readsql=SELECT number from accounts WHERE number = ${ARG1}
+
+;[accountNumber]
+;dsn=asterisk-test
+;readsql=SELECT number from accounts WHERE number = 5555555555
+
+* Make sure the permissions are setup for asterisk if you created the file as root.
+
+13.) Test the query from isql
+
+[root@myhost ~]# echo "select number from accounts where number = 5555555555" | isql -v asterisk-test
++---------------------------------------+
+| Connected!                            |
+|                                       |
+| sql-statement                         |
+| help [tablename]                      |
+| quit                                  |
+|                                       |
++---------------------------------------+
+SQL> +-----------+
+| number    |
++-----------+
+| 5555555555|
++-----------+
+SQLRowCount returns 1
+1 rows fetched
+
+14.) Test the query from the Asterisk CLI.  This will validate that Asterisk using the configuration can communicate via ODBC to the database and complete the query.
+[root@myhost ~]# asterisk -r
+
+myhost*CLI> core set verbose 3
+Verbosity is at least 3
+
+myhost*CLI> odbc read ODBC_accountNumber 5555555555 exec
+number                5555555555
+Returned 1 row.  Query executed on handle 0 [asterisk-test]
+
+15.) Now we create the /etc/asterisk/extensions_custom.conf file which is a special file used by FreePBX for custom dialplan contexts created outside of the FreePBX gui.  
+
+[from internal-custom]
+include => play-monkeys
+
+[play-monkeys]
+exten => 999,1,Answer								;Answer the call
+exten => 999,n,Read(NUMBER,,10)							;Read digits followed by a # up to 10 and assign to the variable NUMBER
+exten => 999,n,SayDigits(${NUMBER})						;Playback the digits to the caller
+exten => 999,n,Set(NUMLOOKUP=${ODBC_accountNumber(${NUMBER})})		        ;Run the query passing $NUMBER as $ARG1 and assign the response to $NUMLOOKUP
+exten => 999,n,NoOp(Number ${NUMBER} Lookup ${NUMLOOKUP})			;Write $NUMBER and $NUMLOOKUP to the logfile /etc/asterisk/full
+exten => 999,n,GotoIf($["${NUMBER}"="${NUMLOOKUP}"]?validEntry:invalidEntry)	;Compare $NUMBER to $NUMLOOKUP and if they match jump to the label validEntry else label invalidEntry
+exten => 999,n(validEntry),Playback(tt-monkeys)					;Play tt-monkeys if everything is working
+exten => 999,n,Hangup()								;After finishing tt-monkeys hangup
+exten => 999,n(invalidEntry),Hangup()						;If $NUMBER and $NUMLOOKUP do not match hangup
+
+16.) After editing the dialplan reload it.
+
+From Asterisk CLI
+myhost*CLI> dialplan reload
+
+Or from Linux CLI
+asterisk -rx "dialplan reload"
+
+17.) To include your own dialplan in the call flow, we use a combination of modules. First, we need to tell FreePBX where in our dialplan we would like to point to. To do this, we set up a Custom Destination (from the tools tab) with the custom description pointing to out custom dialplan in the format of context, extension, priority. To refer back to our previous example, we would set the custom destination to: play-monkeys,999,1. We will also add a Description so that we can easily remember what this dialplan refers to. Lets call it play-monkeys. Then click submit.
+
+18.) Next, we need to create a Miscellaneous Application. The Misc Application module allows us to set up an extension (remember, in Asterisk an extension is somewhere in the dialplan that you can call - not necessarily a phone) that can point to anywhere. For example, if you want your users to be able to call an IVR which is usually only heard by inbound callers, you can set a feature code to call the IVR every time the feature code is dialed. Now we will set up a feature code to call out custom context: Click Misc Application from the setup tab, and enter a feature code, say 999. Next Enter a description, say call monkeys. Finally, chose our custom Application form the Destination menu Custom Application: play-monkeys and finally click submit.
+
+Now your all set! Reload FreePBX by clicking the orange bar, and call 999, enter the number in the SQL DB and you should hear the tt-monkeys file being played back if everything worked!
+
+
+#######################################################
+References:
+http://ofps.oreilly.com/titles/9780596517342/asterisk-DB.html
+http://mbrevda.blogspot.com/2008/10/miscellaneouscustom-applicationextensio.html
+http://mbrevda.blogspot.com/2008/10/miscellaneouscustom-applicationextensio_16.html
+http://www.voip-info.org/wiki/
+
+Extra notes: 
+func_odbc.conf in the /etc/asterisk directory. Once you add to or make changes in this file, you'll need to reload your Asterisk modules: asterisk -rx "module reload".
+
+Troubleshooting:
+I ran into trouble with my SQL query syntax and had to use the /var/log/asterisk/full file to identify the problem.  In the error below my query in the func_odbc.conf file was missing the 'number' after WHERE and before the =.  
+
+From the asterisk CLI it looked like this:
+myhost*CLI> odbc read ODBC_accountNumber 5555555555 exec
+Failed to execute query. [SELECT number FROM accounts WHERE = 5555555555]
+
+From the /var/log/asterisk/full log file it looked like this:
+
+[Jan  6 10:28:54] WARNING[24475] func_odbc.c: SQL Execute returned an error -1: 42000: [MySQL][ODBC 3.51 Driver][mysqld-5.0.77]You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '= 5555555555' at line 1 (198)
+[Jan  6 10:28:54] WARNING[24475] func_odbc.c: SQL Exec Direct failed (-1)![SELECT number FROM accounts WHERE = 5555555555]
+[Jan  6 10:29:09] VERBOSE[24475] asterisk.c:     -- Remote UNIX connection disconnected

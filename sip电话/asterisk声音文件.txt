@@ -1,0 +1,3 @@
+asterisk 声音文件设置
+
+8000Hz 单声道 mono

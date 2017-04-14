@@ -1,0 +1,40 @@
+Ubuntu 安装 phabricator
+1. 打开网站，复制脚本。 
+	https://secure.phabricator.com/diffusion/P/browse/master/scripts/install/install_ubuntu.sh
+2. 创建脚本
+	$ cd /var/www
+	$ vim install_ubuntu.sh
+3. 粘贴刚刚复制的脚本，保存退出。
+4. 添加脚本权限
+	$ sudo chmod +x install_ubuntu.sh
+5. 执行安装脚本
+	$ sudo sh install_ubuntu.sh
+
+6. 配置 apache2
+	$ sudo vim /etc/apache2/sites-enabled/000-default.conf
+	编辑:
+		将DocumentRoot 后面的内容改为： /var/www/phabricator/webroot
+
+	$ sudo vim /etc/apache2/apache2.conf
+	编辑-添加如下内容：
+		<Directory "/var/www/phabricator/webroot">
+		  Require all granted
+		</Directory>
+
+7. 重启 Apache2
+	$ sudo /etc/init.d/apache2 restart
+8. phabricator Mysql 配置。
+	$ sudo ./bin/storage upgrade
+	$ sudo ./bin/config set mysql.host 127.0.0.1
+	$ sudo ./bin/config set mysql.user root
+	$ sudo ./bin/config set mysql.pass helloworld
+
+9. Phabricator 配置
+	1. 更改网址
+		$ sudo ./bin/config set phabricator.base-uri 'http://54.222.185.95/'
+
+	2. 提供登录方式（配置地址）
+		http://54.222.185.95/auth/config/new/
+	3. Run Phd
+		$ sudo ./bin/phd start
+

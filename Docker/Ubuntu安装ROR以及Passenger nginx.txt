@@ -1,0 +1,174 @@
+Ubuntu 下安装 ROR 环境以及 passenger+nginx 配置(所有操作均在 root 下)
+
+	#更新资源
+1. $ sudo apt-get update 
+	
+	#安装需要的环境
+2. $ sudo apt-get install -y wget vim build-essential openssl libreadline6 libreadline6-dev libmysqlclient-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libxml2-dev libxslt-dev libcurl4-openssl-dev autoconf automake libtool imagemagick libmagickwand-dev libpcre3-dev nodejs libpq-dev
+
+3.安装java jdk
+sudo apt-get install -y openjdk-7-jre 
+sudo apt-get install -y openjdk-7-jdk
+
+4. $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+	#安装rvm
+4. $ sudo su - 
+   $ \curl -L https://get.rvm.io | bash -s stable
+	
+	#写入环境变量   
+5. $ echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"' >>~/.bashrc
+   $ source ~/.bashrc
+   $ rvm -v #查看rvm版本(如果无法查看可以重启终端 然后再次输入这个命令)
+
+	#如果你是国内服务器，推荐将 RVM 的安装源替换成 Taobao 的镜像服务器，这样安装能更快！
+6. $ sed -i -e 's/ftp\.ruby-lang\.org\/pub\/ruby/ruby\.taobao\.org\/mirrors\/ruby/g' /usr/local/rvm/config/db
+
+	#用 RVM 安装 Ruby
+7. $ rvm pkg install readline openssl  (每次都会有错,不用理会错误接着往下)
+
+	#安装ruby
+8. $ rvm install 2.1.2 (一般会安装2.1.2的最新版)
+   $ rvm list known (查看版本)
+	#指定默认ruby版本
+9. $ rvm use 2.1.2 --default
+
+	#查看ruby版本
+10. $ ruby -v
+
+	#替换镜像
+11. $ gem sources --remove https://rubygems.org/
+	$ gem sources -a http://ruby.taobao.org/
+	$ gem sources -l
+	*** CURRENT SOURCES ***
+
+	http://ruby.taobao.org
+	
+	#安装rails 
+12. $ gem install rails (默认是安装最新 4.0 可以指定版本 gem install rails -v 3.2.17)
+    #安装mysql  php 
+12 $ sudo apt-get install -y php5-cli php5-cgi mysql-server php5-mysql
+
+	#安装passenger
+13. $ gem install passenger
+	$ passenger -v (查看版本)
+
+	#安装nginx
+14 由于 Passenger 需要重新编译 Nginx，如果你之前有安装 Nginx 需要卸载掉！
+   nginx -v，有的话卸载 $ sudo apt-get remove nginx-common nginx-full nginx
+   
+   $ sudo passenger-install-nginx-module
+   
+   最后会看到 : Nginx with Passenger support was successfully installed.
+   
+	#删除nginx本身的页面
+15. $ sudo rm -rf /opt/nginx/html/index.html
+
+	#配置 Nginx 与网站
+16. $ sudo vim /opt/nginx/conf/nginx.conf
+
+
+  配置demo
+  
+user shengshihui; # 修改成你的系统帐号名，不然项目目录 /home/shengshihui/www 这里没有权限
+#user  nobody;
+worker_processes  4;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    passenger_root /usr/local/rvm/gems/ruby-2.0.0-p195/gems/passenger-4.0.20;
+    passenger_ruby /usr/local/rvm/wrappers/ruby-2.0.0-p195/ruby;
+
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+    client_max_body_size 500m;
+
+    gzip on;
+    gzip_min_length 1k;
+    gzip_buffers 4 16k;
+    gzip_comp_level 2;
+    gzip_types text/plain application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    gzip_vary off;
+    gzip_disable "MSIE [1-6]\.";
+
+    server {
+        listen       80;
+        server_name  localhost;
+        root /home/shengshihui/www/ror/dotshouji_server/public;
+        passenger_enabled on;
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
+
+
+
+接下来你需要安装 Nginx 的启动脚本，以及配置开机自动启动
+
+$ cd ~/
+$ git clone git://github.com/jnstq/rails-nginx-passenger-ubuntu.git
+$ sudo mv rails-nginx-passenger-ubuntu/nginx/nginx /etc/init.d/nginx
+$ sudo chmod +x /etc/init.d/nginx
+配置 Nginx 开机自启动
+
+$ sudo update-rc.d nginx defaults
+
+
+
+项目运行
+
+1.自己找一个新的目录 从bitbucket上获取新的代码
+2.查看项目代码 dotshouji_server/config/database.yml
+ 确认 production: 下的socket路径,这个路径是在mysql配置文件 my.conf设置的
+另外确认你的MySQL是否有密码有的话就加上
+3.安装gem
+$ bundle install
+4.创建数据库
+$ sudo su -
+$ cd /你的项目路径
+$ rake db:create RAILS_ENV = production
+$ rake db:migrate RAILS_ENV = production
+
+5.启动ngxin
+$ sudo /etc/init.d/nginx start
+
+(重启命令)
+$ sudo /etc/init.d/nginx restart
+
+(停止命令)
+$ sudo /etc/init.d/nginx stop
+
+
+
+在项目录地下执行（/home/lvyan/workspace/dotshouji_server#） 数据库创建
+
+rake db:create RAILS_ENV=production
+
+rake db:migrate RAILS_ENV=production
+
+
+

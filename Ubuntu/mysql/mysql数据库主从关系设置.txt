@@ -1,0 +1,36 @@
+mysql 设置主从数据库
+主数据库
+编辑 my.cnf文件 去掉前面的注释
+[mysqld]
+server-id=1
+log-bin="log记录地址"
+binlog-do-db = "你的数据库名字"
+
+mysql/> show master status;
++------------------+----------+-----------------------------+------------------+
+| File             | Position | Binlog_Do_DB                | Binlog_Ignore_DB |
++------------------+----------+-----------------------------+------------------+
+| mysql-bin.000003 |      107 | dotshouji_server_production | mysql            |
++------------------+----------+-----------------------------+------------------+
+导出数据
+$ mysqldump -uroot -p dotshouji_server_production > /tmp/dotshouji_server_production.sql
+
+从服务器
+$ mysql -uroot -p dotshouji_server_production < /tmp/dotshouji_server_production.sql ,记得需要先建库test
+[mysqld]
+server-id=2
+replicate-do-db = "要同步的数据库名字"
+保存退出然后启动...
+命令行进入MySQL
+mysql/> STOP SLAVE;
+mysql/> change master to master_host='116.213.142.13',master_user='root', master_password='root', master_log_file='mysql-bin.000003', master_log_pos=107;
+mysql/> START SLAVE;
+验证
+MySQL> show slave status\G;
+MySQL> show full processlist;
+
+导入数据
+
+
+
+

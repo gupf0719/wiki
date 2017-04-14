@@ -1,0 +1,16 @@
+ubuntu 安装 nginx + wordperss
+
+1. $ sudo apt-get -y update
+   $ sudo apt-get -y upgrade
+
+2. $ sudo apt-get -y install php5-cli php5-cgi
+
+3. $ sudo apt-get install -y spawn-fcgi
+
+4. $ spawn-fcgi -a 127.0.0.1 -p 9000 -C 10 -u www-data -f /usr/bin/php-cgi
+
+5.、设置开机自启动
+Ubuntu开机之后会执行/etc/rc.local文件中的脚本 
+所以我们可以直接在/etc/rc.local中添加启动脚本。
+spawn-fcgi -a 127.0.0.1 -p 9000 -C 10 -u www-data -f /usr/bin/php-cgi 添加到语句： exit 0
+前面才行
