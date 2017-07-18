@@ -1,0 +1,3 @@
+curl -X GET -H "Content-Type: application/json" https://api.huageya.com/server/token?appId=746BBFA40DC8189886&appSecrect=C8189886FFAB370F4DF2E3B2347AD0D4
+
+https://api.huageya.com:8443/server/token?appId=APPID& appSecrect=APPSECRECT
